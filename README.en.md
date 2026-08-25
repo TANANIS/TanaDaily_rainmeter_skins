@@ -21,6 +21,16 @@ Requires Windows 10/11 and Rainmeter 4.5 or newer.
 
 For a manual install, copy [`src/Skins/MistRainWorkbench`](src/Skins/MistRainWorkbench/) into your Rainmeter `Skins` directory and run **Refresh all**.
 
+## Recommended: ActivityWatch
+
+For **App Usage**, we recommend installing the [official ActivityWatch Windows Installer](https://activitywatch.net/downloads/)—choose the stable release and the recommended Installer download.
+
+1. Install and start ActivityWatch.
+2. Enable ActivityWatch at Windows startup so it can build a complete usage history.
+3. Keep its default local endpoint at `http://localhost:5600`; the Dashboard reads it automatically without an account, OAuth, or cloud connection.
+
+ActivityWatch remains optional. If it is missing or temporarily stopped, App Usage shows an offline state while every other widget keeps working.
+
 ## Data and privacy
 
 Todo uses UTF-8 BOM Markdown and protects writes with source hashes, validation, an atomic replace, and a `.bak` backup. ActivityWatch is optional and only contacts the local service. The package contains no personal tasks, usage history, timer state, shortcuts, OAuth, telemetry, or cloud API integration. PowerShell and Lua sources are included for review; the `.rmskin` package is unsigned.

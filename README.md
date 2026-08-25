@@ -21,6 +21,16 @@
 
 也可將 [`src/Skins/MistRainWorkbench`](src/Skins/MistRainWorkbench/) 複製到 Rainmeter 的 `Skins` 資料夾後 Refresh all。
 
+## 建議搭配 ActivityWatch
+
+若要使用 **App Usage**，建議安裝 [ActivityWatch 官方 Windows Installer](https://activitywatch.net/downloads/)（下載頁面中的 stable / Installer recommended）。
+
+1. 安裝並啟動 ActivityWatch。
+2. 建議讓 ActivityWatch 隨 Windows 自動啟動，才能持續累積完整紀錄。
+3. 保持預設本機服務位址 `http://localhost:5600`；Dashboard 會自動讀取，不需要帳號、OAuth 或雲端連線。
+
+ActivityWatch 仍是選配；未安裝或暫時未執行時，App Usage 只會顯示離線狀態，不影響其他 widget。
+
 ## 使用與設定
 
 - Todo 資料位於 `MistRainWorkbench\@Resources\Data\tasks.md`。寫入採 hash conflict protection、同目錄暫存檔、驗證、atomic replace，並保留 `.bak`。
@@ -28,7 +38,7 @@
 - Focus 底部 1–4 是四個獨立計時器。左鍵切換，右鍵編輯名稱與分鐘。
 - Quick Launch 底部分類可切換；右鍵分類可改名，點空格或右鍵既有格可設定。
 - 若要更換 Todo 外部編輯器，可修改 `@Resources\Variables.inc` 的 `TasksEditorCommand`。
-- ActivityWatch 為選配。未安裝或未執行時，App Usage 會顯示離線狀態，不影響其他模組。
+- ActivityWatch 預設每 5 分鐘更新一次，API 失敗時保留最後成功資料。
 
 ## 隱私與安全
 
