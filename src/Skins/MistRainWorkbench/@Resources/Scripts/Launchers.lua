@@ -1,6 +1,6 @@
 local categoryCount, slotCount = 4, 5
 local active = 1
-local configPath, statePath, resultPath = "", "", ""
+local configPath, statePath, resultPath, launchResultPath = "", "", "", ""
 local values = {}
 local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
@@ -41,6 +41,13 @@ local function writePending()
     return true
 end
 
+local function writeLaunchPending()
+    local file = io.open(launchResultPath, 'wb')
+    if not file then return false end
+    file:write("Version=1\r\nStatus=pending\r\nDetail=\r\n")
+    file:close()
+    return true
+end
 local function parseKeys(data)
     local map = {}
     for line in (data or ''):gmatch('[^\r\n]+') do
@@ -61,23 +68,18 @@ local function readConfig()
     return values.Version == '1'
 end
 
-local function exists(path)
-    if path:match('^https?://') or path:match('^mailto:') then return true end
-    local file = io.open(path, 'rb')
-    if file then file:close(); return true end
-    return false
-end
-
 local function setSlot(index)
     local key = 'Slot' .. active .. '_' .. index
     local name = decode(values[key .. 'Name'])
     local command = decode(values[key .. 'Command'])
     local icon = decode(values[key .. 'Icon'])
     local configured = name ~= '' and command ~= ''
-    local available = configured and exists(command)
+    -- Lua 5.1 file APIs are ANSI-only on Windows. The Unicode bridge
+    -- validates and starts the configured command without round-tripping it here.
+    local available = configured
     local configure = '[!CommandMeasure MeasureLaunchers "ConfigureSlot(' .. active .. ',' .. index .. ')"]'
     local action = configure
-    if available then action = '["' .. command:gsub('"', '\\"') .. '"]' end
+    if available then action = '[!CommandMeasure MeasureLaunchers "Launch(' .. active .. ',' .. index .. ')"]' end
 
     SKIN:Bang('!SetOption', 'MeterSlotLabel' .. index, 'Text', name ~= '' and name or '+')
     SKIN:Bang('!SetOption', 'MeterSlotLabel' .. index, 'FontColor', available and '#TextMuted#' or (configured and '#DisabledColor#' or '#TextFaint#'))
@@ -87,7 +89,7 @@ local function setSlot(index)
     SKIN:Bang('!SetOption', 'MeterSlotIcon' .. index, 'ImageAlpha', available and '220' or (configured and '60' or '0'))
     SKIN:Bang('!SetOption', 'MeterSlotIcon' .. index, 'LeftMouseUpAction', action)
     SKIN:Bang('!SetOption', 'MeterSlotIcon' .. index, 'RightMouseUpAction', configure)
-    local tip = available and command or (configured and SKIN:GetVariable('LaunchMissingFormat', 'Missing: %s'):gsub('%%s', command) or 'Configure shortcut')
+    local tip = configured and SKIN:GetVariable('LauncherOpenHint', 'Open shortcut') or 'Configure shortcut'
     SKIN:Bang('!SetOption', 'MeterSlotIcon' .. index, 'ToolTipText', tip)
     SKIN:Bang('!SetOption', 'MeterSlotLabel' .. index, 'ToolTipText', tip)
 end
@@ -119,6 +121,7 @@ function Initialize()
     configPath = SKIN:GetVariable('LauncherConfigFile')
     statePath = SKIN:GetVariable('LauncherStateFile')
     resultPath = SKIN:GetVariable('LauncherSettingsResultFile')
+    launchResultPath = SKIN:GetVariable('LauncherLaunchResultFile')
     active = math.max(1, math.min(categoryCount, tonumber(SKIN:GetVariable('ActiveLauncherCategory', '1')) or 1))
     setStatus('', '#TextFaint#')
     refresh()
@@ -147,6 +150,33 @@ end
 function ConfigureSlot(category, slot) settings('slot', category, slot) end
 function ConfigureCategory(category) settings('category', category, 0) end
 
+function Launch(category, slot)
+    category = math.max(1, math.min(categoryCount, tonumber(category) or active))
+    slot = math.max(1, math.min(slotCount, tonumber(slot) or 1))
+    if not writeLaunchPending() then
+        setStatus(SKIN:GetVariable('LauncherStatusLaunchError'), '#ErrorColor#')
+        SKIN:Bang('!Redraw')
+        return
+    end
+    setStatus(SKIN:GetVariable('LauncherStatusLaunching'), '#TextFaint#')
+    SKIN:Bang('!Redraw')
+    local parameter = '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "#@#Scripts\LaunchShortcut.ps1" -Category ' .. category .. ' -Slot ' .. slot .. ' -ConfigPath "#LauncherConfigFile#" -ResultPath "#LauncherLaunchResultFile#"'
+    SKIN:Bang('!SetOption', 'MeasureLauncherRun', 'Parameter', parameter)
+    SKIN:Bang('!CommandMeasure', 'MeasureLauncherRun', 'Run')
+end
+
+function LaunchFinished()
+    local result = parseKeys(readBinary(launchResultPath) or '')
+    local status = result.Status or 'error'
+    if status == 'ok' then
+        setStatus(SKIN:GetVariable('LauncherStatusLaunched'), '#TextFaint#')
+    elseif status == 'missing' then
+        setStatus(SKIN:GetVariable('LauncherStatusLaunchMissing'), '#WarningColor#')
+    else
+        setStatus(SKIN:GetVariable('LauncherStatusLaunchError'), '#ErrorColor#')
+    end
+    SKIN:Bang('!Redraw')
+end
 function SettingsFinished()
     local result = parseKeys(readBinary(resultPath) or '')
     local status = result.Status or 'error'

@@ -1,12 +1,12 @@
 # Release verification
 
-Artifact: `dist/TanaDaily-MistRainWorkbench-1.0.1.rmskin`
+Artifact: `dist/TanaDaily-MistRainWorkbench-1.0.2.rmskin`
 
 Verified: 2026-08-25 on Windows / Rainmeter
 
-Size: 114,920 bytes
+Size: 116,340 bytes
 
-SHA-256: `52C33B3562E31B4F62C59DB80ECEF71B404B469E61526746BB0364299C7DD542`
+SHA-256: `8F437734B62E6D4F36BBE66064DEAFF3E1A93F4C8FDC8A31088AC099C18DC6FD`
 
 ## Safety and compatibility matrix
 
@@ -14,7 +14,7 @@ SHA-256: `52C33B3562E31B4F62C59DB80ECEF71B404B469E61526746BB0364299C7DD542`
 |---|---:|---|
 | Rainmeter package format | PASS | ZIP payload plus official 16-byte `RMSKIN` footer; stored ZIP size, flags, and magic verified |
 | Rainmeter Skin Installer | PASS | Local `SkinInstaller.exe` accepted the package and displayed its confirmation UI; test closed it without installing |
-| Archive integrity | PASS | Extracted package contained `RMSKIN.ini` and 46 skin files; every source file matched by SHA-256 |
+| Archive integrity | PASS | Extracted package contained `RMSKIN.ini` and 47 skin files; every source file matched by SHA-256 |
 | Manifest | PASS | Name, minimum versions, `LoadType=Skin`, and `MistRainWorkbench\MainDashboard.ini` load target verified |
 | PowerShell syntax | PASS | All shipped `.ps1` files and the build script parsed with the Windows PowerShell parser |
 | Lua 5.1 syntax | PASS | Every shipped `.lua` file parsed with `luaparse` |
@@ -29,6 +29,7 @@ SHA-256: `52C33B3562E31B4F62C59DB80ECEF71B404B469E61526746BB0364299C7DD542`
 | Focus defaults | PASS | Four independent version-2 timer records decoded and validated at 25:00, stopped |
 | Quick Launch defaults | PASS | Four config-driven categories decoded; no author-specific user path present |
 | Quick Launch configure | PASS | EXE save, icon extraction, UTF-8 display name, cancel-without-write, missing-file rejection, invalid-input rejection, atomic replacement, and backup behavior passed |
+| Quick Launch Unicode path | PASS | A Chinese directory and `.lnk` filename completed config Base64 roundtrip and launch through hidden Windows PowerShell 5.1; missing Unicode target returned the expected state |
 | Desktop layer | PASS | Clock, Calendar, Todo, Focus, App Usage, and Quick Launch all set `ZPos -2` (`On Desktop`) |
 | Privacy scan | PASS | No author tasks, ActivityWatch history, personal timer state, result/request cache, email, or `C:\Users\JSrad` path in the package |
 | Network scan | PASS | Shipped scripts contain no unexpected remote endpoint; ActivityWatch default is localhost only |

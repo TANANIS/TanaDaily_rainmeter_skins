@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2 - 2026-08-25
+
+- Fixes Quick Launcher shortcuts stored in paths containing Chinese or other Unicode characters.
+- Routes launches through a hidden Unicode-safe Windows PowerShell bridge while keeping configuration-driven slots and graceful missing-file feedback.
+- Stops exposing raw shortcut paths in Rainmeter tooltips, avoiding ANSI mojibake from Lua 5.1.
+
 ## 1.0.1 - 2026-08-25
 
 - Fixes Todo add and refresh under Windows PowerShell 5.1 while retaining UTF-8 BOM, hash-conflict protection, atomic replacement, and backups.
