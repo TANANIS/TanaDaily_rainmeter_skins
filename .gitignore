@@ -1,0 +1,16 @@
+# Package build scratch
+package-root/
+package-extracted/
+test-output/
+*.zip
+
+# Runtime-only state if the source tree is used directly
+src/Skins/MistRainWorkbench/@Resources/Data/*.bak
+src/Skins/MistRainWorkbench/@Resources/Data/*.tmp
+src/Skins/MistRainWorkbench/@Resources/Data/*.rollback
+src/Skins/MistRainWorkbench/@Resources/Data/activitywatch_cache.json
+src/Skins/MistRainWorkbench/@Resources/Data/tasks.cache
+src/Skins/MistRainWorkbench/@Resources/Data/tasks-render.inc
+src/Skins/MistRainWorkbench/@Resources/Data/*-request.ini
+src/Skins/MistRainWorkbench/@Resources/Data/*-result.ini
+src/Skins/MistRainWorkbench/@Resources/Data/LauncherIcons/
