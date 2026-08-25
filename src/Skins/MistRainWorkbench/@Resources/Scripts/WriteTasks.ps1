@@ -52,7 +52,7 @@ function Get-TaskRecords {
     param([string]$Text)
     $records = New-Object Collections.Generic.List[object]
     $number = 0
-    foreach ($line in ($Text -split "\r\n|\n|\r", -1)) {
+    foreach ($line in ($Text -split "\r\n|\n|\r")) {
         $number++
         if ($line -match '^\s*[-*+]\s*\\?\[([ xX])\\?\]\s*(.+?)\s*$') {
             $records.Add([pscustomobject]@{ Line = $number; Done = $Matches[1].ToLowerInvariant() -eq 'x'; Title = $Matches[2] })
@@ -89,7 +89,7 @@ function Toggle-Task {
 function Add-Task {
     param([string]$Text, [string]$Title)
     $newline = if ($Text.Contains("`r`n")) { "`r`n" } elseif ($Text.Contains("`n")) { "`n" } elseif ($Text.Contains("`r")) { "`r" } else { "`n" }
-    $lines = $Text -split "\r\n|\n|\r", -1
+    $lines = $Text -split "\r\n|\n|\r"
     $todayLine = 0
     for ($i = 0; $i -lt $lines.Count; $i++) {
         if ($lines[$i] -match '^\s*#{1,6}\s+Today\s*$') { $todayLine = $i + 1; break }

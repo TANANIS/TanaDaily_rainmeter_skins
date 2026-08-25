@@ -1,12 +1,12 @@
 # Release verification
 
-Artifact: `dist/TanaDaily-MistRainWorkbench-1.0.0.rmskin`
+Artifact: `dist/TanaDaily-MistRainWorkbench-1.0.1.rmskin`
 
 Verified: 2026-08-25 on Windows / Rainmeter
 
-Size: 112,738 bytes
+Size: 114,920 bytes
 
-SHA-256: `958ADDAC286DD50C9F83E72A485BCD0FB12DB4B22EA18BDDEDAC7D616918A7BE`
+SHA-256: `52C33B3562E31B4F62C59DB80ECEF71B404B469E61526746BB0364299C7DD542`
 
 ## Safety and compatibility matrix
 
@@ -21,11 +21,14 @@ SHA-256: `958ADDAC286DD50C9F83E72A485BCD0FB12DB4B22EA18BDDEDAC7D616918A7BE`
 | Encoding | PASS | Rainmeter UI/state includes use UTF-16LE BOM; writable Markdown/config data use UTF-8 BOM; Lua remains BOM-free |
 | Todo toggle | PASS | Isolated fixture changed only the selected checkbox and produced a backup |
 | Todo Chinese add | PASS | Added `測試中文新增任務 ✓`, preserved UTF-8 BOM, and successfully reparsed the result |
+| Todo Windows PowerShell 5.1 | PASS | Live-format Markdown was added and reparsed under Windows PowerShell 5.1; the prior negative `-split` incompatibility is removed |
+| Todo input bridge | PASS | Chinese input, Enter/save bridge, cancellation, stale-result prevention, UTF-8 Base64 transport, and visible panel status were exercised in isolated copies |
 | Todo atomic safety | PASS | Writer validation and `.bak` behavior exercised in an isolated copy; live user data was not touched |
 | ActivityWatch offline/no data | PASS | Unreachable local test endpoint produced the explicit no-data offline state |
 | ActivityWatch last-known-good | PASS | Unreachable endpoint retained seeded prior data and produced the LKG offline state |
 | Focus defaults | PASS | Four independent version-2 timer records decoded and validated at 25:00, stopped |
 | Quick Launch defaults | PASS | Four config-driven categories decoded; no author-specific user path present |
+| Quick Launch configure | PASS | EXE save, icon extraction, UTF-8 display name, cancel-without-write, missing-file rejection, invalid-input rejection, atomic replacement, and backup behavior passed |
 | Desktop layer | PASS | Clock, Calendar, Todo, Focus, App Usage, and Quick Launch all set `ZPos -2` (`On Desktop`) |
 | Privacy scan | PASS | No author tasks, ActivityWatch history, personal timer state, result/request cache, email, or `C:\Users\JSrad` path in the package |
 | Network scan | PASS | Shipped scripts contain no unexpected remote endpoint; ActivityWatch default is localhost only |

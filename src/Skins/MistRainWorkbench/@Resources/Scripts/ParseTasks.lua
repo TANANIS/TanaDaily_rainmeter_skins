@@ -165,8 +165,15 @@ end
 
 function OpenAdd()
     if writing or building then return end
+    local pending = table.concat({ "Version=1", "Status=pending", "TitleBase64=", "Detail=", "" }, "\r\n")
+    if not writeAscii(inputResultPath, pending) then
+        setStatus(SKIN:GetVariable("TodoStatusWriteError"), "#ErrorColor#")
+        SKIN:Bang("!UpdateMeter", "MeterStatus")
+        SKIN:Bang("!Redraw")
+        return
+    end
     adding = true
-    setStatus("", "#TextFaint#")
+    setStatus(SKIN:GetVariable("TodoStatusInput"), "#TextFaint#")
     SKIN:Bang("!UpdateMeter", "MeterStatus")
     SKIN:Bang("!Redraw")
     SKIN:Bang("!CommandMeasure", "MeasureTaskInput", "Run")

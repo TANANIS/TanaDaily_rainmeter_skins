@@ -107,7 +107,7 @@ try {
     $items = New-Object Collections.Generic.List[object]
     $malformed = 0
     $lineNumber = 0
-    foreach ($rawLine in ($source.Text -split "\r\n|\n|\r", -1)) {
+    foreach ($rawLine in ($source.Text -split "\r\n|\n|\r")) {
         $lineNumber++
         if ($rawLine -match '^\s*[-*+]\s*\\?\[([ xX])\\?\]\s*(.+?)\s*$') {
             $title = ($Matches[2] -replace '[\r\n\t]', ' ').Trim()
