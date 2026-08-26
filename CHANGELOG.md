@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.3 - 2026-08-27
+
+- Reworks Quick Launcher add/edit into one contextual panel with inline validation, clear button hierarchy, Enter/Escape behavior, and no MessageBox interruption.
+- Makes clear a two-step action inside the same panel and removes per-slot stale icon assets after clear or URL replacement.
+- Adds explicit left-click/right-click discovery hints and distinct saved, cleared, and category-renamed result states.
+
 ## 1.0.2 - 2026-08-25
 
 - Fixes Quick Launcher shortcuts stored in paths containing Chinese or other Unicode characters.

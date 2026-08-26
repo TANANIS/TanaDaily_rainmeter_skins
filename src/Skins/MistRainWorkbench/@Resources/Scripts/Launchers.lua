@@ -89,7 +89,7 @@ local function setSlot(index)
     SKIN:Bang('!SetOption', 'MeterSlotIcon' .. index, 'ImageAlpha', available and '220' or (configured and '60' or '0'))
     SKIN:Bang('!SetOption', 'MeterSlotIcon' .. index, 'LeftMouseUpAction', action)
     SKIN:Bang('!SetOption', 'MeterSlotIcon' .. index, 'RightMouseUpAction', configure)
-    local tip = configured and SKIN:GetVariable('LauncherOpenHint', 'Open shortcut') or 'Configure shortcut'
+    local tip = configured and SKIN:GetVariable('LauncherOpenHint', 'Left click to open; right click to edit') or SKIN:GetVariable('LauncherConfigureHint', 'Click to add shortcut')
     SKIN:Bang('!SetOption', 'MeterSlotIcon' .. index, 'ToolTipText', tip)
     SKIN:Bang('!SetOption', 'MeterSlotLabel' .. index, 'ToolTipText', tip)
 end
@@ -104,6 +104,7 @@ local function refresh()
         local name = decode(values['Category' .. index .. 'Name'])
         SKIN:Bang('!SetOption', 'MeterCategory' .. index, 'Text', name ~= '' and name or ('Category ' .. index))
         SKIN:Bang('!SetOption', 'MeterCategory' .. index, 'FontColor', index == active and '#TextColor#' or '#TextFaint#')
+        SKIN:Bang('!SetOption', 'MeterCategory' .. index, 'ToolTipText', SKIN:GetVariable('LauncherCategoryHint', 'Right click to rename'))
     end
     SKIN:Bang('!SetOption', 'MeterCategorySelection', 'X', tostring(15 + (active - 1) * 61))
     for index = 1, slotCount do
@@ -181,7 +182,8 @@ function SettingsFinished()
     local result = parseKeys(readBinary(resultPath) or '')
     local status = result.Status or 'error'
     if status == 'ok' then
-        local text = result.Mode == 'category' and SKIN:GetVariable('LauncherStatusCategoryUpdated') or SKIN:GetVariable('LauncherStatusUpdated')
+        local action = result.Action or ''
+        local text = result.Mode == 'category' and SKIN:GetVariable('LauncherStatusCategoryUpdated') or (action == 'clear' and SKIN:GetVariable('LauncherStatusCleared') or SKIN:GetVariable('LauncherStatusUpdated'))
         setStatus(text, '#TextFaint#')
     elseif status == 'cancel' then
         setStatus('', '#TextFaint#')

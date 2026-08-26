@@ -1,12 +1,12 @@
 # Release verification
 
-Artifact: `dist/TanaDaily-MistRainWorkbench-1.0.2.rmskin`
+Artifact: `dist/TanaDaily-MistRainWorkbench-1.0.3.rmskin`
 
-Verified: 2026-08-25 on Windows / Rainmeter
+Verified: 2026-08-27 on Windows / Rainmeter
 
-Size: 116,340 bytes
+Size: 118,413 bytes
 
-SHA-256: `8F437734B62E6D4F36BBE66064DEAFF3E1A93F4C8FDC8A31088AC099C18DC6FD`
+SHA-256: `574F9D38B72AD08C4404789E680AF9217190E658718E6D67BF83EB33AE4977B5`
 
 ## Safety and compatibility matrix
 
@@ -30,6 +30,7 @@ SHA-256: `8F437734B62E6D4F36BBE66064DEAFF3E1A93F4C8FDC8A31088AC099C18DC6FD`
 | Quick Launch defaults | PASS | Four config-driven categories decoded; no author-specific user path present |
 | Quick Launch configure | PASS | EXE save, icon extraction, UTF-8 display name, cancel-without-write, missing-file rejection, invalid-input rejection, atomic replacement, and backup behavior passed |
 | Quick Launch Unicode path | PASS | A Chinese directory and `.lnk` filename completed config Base64 roundtrip and launch through hidden Windows PowerShell 5.1; missing Unicode target returned the expected state |
+| Quick Launch panel UX | PASS | Windows PowerShell 5.1 constructed add, edit, category, and clear-armed panels; inline validation, Enter/Escape, no MessageBox, two-step clear, result actions, URL replacement, stale-icon cleanup, cancel/no-write, and native previews were verified |
 | Desktop layer | PASS | Clock, Calendar, Todo, Focus, App Usage, and Quick Launch all set `ZPos -2` (`On Desktop`) |
 | Privacy scan | PASS | No author tasks, ActivityWatch history, personal timer state, result/request cache, email, or `C:\Users\JSrad` path in the package |
 | Network scan | PASS | Shipped scripts contain no unexpected remote endpoint; ActivityWatch default is localhost only |

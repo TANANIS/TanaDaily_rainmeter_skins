@@ -36,7 +36,7 @@ ActivityWatch 仍是選配；未安裝或暫時未執行時，App Usage 只會�
 - Todo 資料位於 `MistRainWorkbench\@Resources\Data\tasks.md`。寫入採 hash conflict protection、同目錄暫存檔、驗證、atomic replace，並保留 `.bak`。
 - Todo 的 `+` 會開啟 Rainmeter 內的輸入面板，不顯示 CMD / PowerShell 視窗。
 - Focus 底部 1–4 是四個獨立計時器。左鍵切換，右鍵編輯名稱與分鐘。
-- Quick Launch 底部分類可切換；右鍵分類可改名，點空格或右鍵既有格可設定。
+- Quick Launch 底部分類可切換；右鍵分類可改名。點空格可新增，既有格左鍵開啟、右鍵編輯；清除需在同一設定面板內再次確認。
 - 若要更換 Todo 外部編輯器，可修改 `@Resources\Variables.inc` 的 `TasksEditorCommand`。
 - ActivityWatch 預設每 5 分鐘更新一次，API 失敗時保留最後成功資料。
 
