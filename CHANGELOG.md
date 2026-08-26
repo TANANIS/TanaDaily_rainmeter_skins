@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.4 - 2026-08-27
+
+- Fixes Quick Launcher category and slot routing so System/Create/Games edits never fall back to Daily slot 1.
+- Uses a validated route request file instead of mutable RunCommand parameters, and rejects mismatched completion results.
+- Prevents overlapping settings dialogs and verifies all 20 slots for both save and clear operations.
+
 ## 1.0.3 - 2026-08-27
 
 - Reworks Quick Launcher add/edit into one contextual panel with inline validation, clear button hierarchy, Enter/Escape behavior, and no MessageBox interruption.

@@ -1,6 +1,8 @@
 local categoryCount, slotCount = 4, 5
 local active = 1
-local configPath, statePath, resultPath, launchResultPath = "", "", "", ""
+local configPath, statePath, resultPath, launchResultPath, routePath = "", "", "", "", ""
+local settingsRunning = false
+local expectedMode, expectedCategory, expectedSlot = "", 0, 0
 local values = {}
 local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
@@ -37,6 +39,14 @@ local function writePending()
     local file = io.open(resultPath, 'wb')
     if not file then return false end
     file:write("Version=1\r\nStatus=pending\r\nMode=\r\nCategory=0\r\nSlot=0\r\nDetail=\r\n")
+    file:close()
+    return true
+end
+
+local function writeSettingsRoute(mode, category, slot)
+    local file = io.open(routePath, 'wb')
+    if not file then return false end
+    file:write("Version=1\r\nMode=" .. mode .. "\r\nCategory=" .. category .. "\r\nSlot=" .. slot .. "\r\n")
     file:close()
     return true
 end
@@ -123,6 +133,7 @@ function Initialize()
     statePath = SKIN:GetVariable('LauncherStateFile')
     resultPath = SKIN:GetVariable('LauncherSettingsResultFile')
     launchResultPath = SKIN:GetVariable('LauncherLaunchResultFile')
+    routePath = SKIN:GetVariable('LauncherSettingsRouteFile')
     active = math.max(1, math.min(categoryCount, tonumber(SKIN:GetVariable('ActiveLauncherCategory', '1')) or 1))
     setStatus('', '#TextFaint#')
     refresh()
@@ -136,15 +147,27 @@ function SelectCategory(index)
 end
 
 local function settings(mode, category, slot)
-    if not writePending() then
+    if settingsRunning then
+        setStatus(SKIN:GetVariable('LauncherStatusOpening'), '#TextFaint#')
+        SKIN:Bang('!Redraw')
+        return
+    end
+    category = math.floor(tonumber(category) or 0)
+    slot = math.floor(tonumber(slot) or 0)
+    if (mode ~= 'slot' and mode ~= 'category') or category < 1 or category > categoryCount or (mode == 'slot' and (slot < 1 or slot > slotCount)) or (mode == 'category' and slot ~= 0) then
         setStatus(SKIN:GetVariable('LauncherStatusError'), '#ErrorColor#')
         SKIN:Bang('!Redraw')
         return
     end
+    if not writeSettingsRoute(mode, category, slot) or not writePending() then
+        setStatus(SKIN:GetVariable('LauncherStatusError'), '#ErrorColor#')
+        SKIN:Bang('!Redraw')
+        return
+    end
+    settingsRunning = true
+    expectedMode, expectedCategory, expectedSlot = mode, category, slot
     setStatus(SKIN:GetVariable('LauncherStatusOpening'), '#TextFaint#')
     SKIN:Bang('!Redraw')
-    local parameter = '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -STA -File "#@#Scripts\\ShowLauncherSettings.ps1" -Mode ' .. mode .. ' -Category ' .. category .. ' -Slot ' .. slot .. ' -ConfigPath "#LauncherConfigFile#" -ResultPath "#LauncherSettingsResultFile#" -IconDirectory "#LauncherIconDirectory#"'
-    SKIN:Bang('!SetOption', 'MeasureLauncherSettings', 'Parameter', parameter)
     SKIN:Bang('!CommandMeasure', 'MeasureLauncherSettings', 'Run')
 end
 
@@ -180,6 +203,14 @@ function LaunchFinished()
 end
 function SettingsFinished()
     local result = parseKeys(readBinary(resultPath) or '')
+    settingsRunning = false
+    local routedCategory = tonumber(result.Category or '0') or 0
+    local routedSlot = tonumber(result.Slot or '0') or 0
+    if result.Mode ~= expectedMode or routedCategory ~= expectedCategory or routedSlot ~= expectedSlot then
+        setStatus(SKIN:GetVariable('LauncherStatusError'), '#ErrorColor#')
+        refresh()
+        return
+    end
     local status = result.Status or 'error'
     if status == 'ok' then
         local action = result.Action or ''

@@ -2,6 +2,7 @@
     [ValidateSet('slot','category')][string]$Mode = 'slot',
     [ValidateRange(1,4)][int]$Category = 1,
     [ValidateRange(0,5)][int]$Slot = 0,
+    [string]$RoutePath = '',
     [Parameter(Mandatory = $true)][string]$ConfigPath,
     [Parameter(Mandatory = $true)][string]$ResultPath,
     [Parameter(Mandatory = $true)][string]$IconDirectory,
@@ -179,6 +180,17 @@ function Clear-LauncherSlot($Config) {
 try {
     Add-Type -AssemblyName System.Windows.Forms
     Add-Type -AssemblyName System.Drawing
+    if (-not [string]::IsNullOrWhiteSpace($RoutePath)) {
+        if (-not (Test-Path -LiteralPath $RoutePath -PathType Leaf)) { throw [IO.FileNotFoundException]::new('route_missing', $RoutePath) }
+        $route = Read-ConfigFile $RoutePath
+        $routeCategory = 0
+        $routeSlot = 0
+        if ($route['Version'] -ne '1' -or $route['Mode'] -notin @('slot','category') -or -not [int]::TryParse([string]$route['Category'], [ref]$routeCategory) -or -not [int]::TryParse([string]$route['Slot'], [ref]$routeSlot)) { throw [ArgumentException]::new('route_invalid') }
+        if ($routeCategory -lt 1 -or $routeCategory -gt 4 -or ($route['Mode'] -eq 'slot' -and ($routeSlot -lt 1 -or $routeSlot -gt 5)) -or ($route['Mode'] -eq 'category' -and $routeSlot -ne 0)) { throw [ArgumentException]::new('route_invalid') }
+        $Mode = [string]$route['Mode']
+        $Category = $routeCategory
+        $Slot = $routeSlot
+    }
     if (-not (Test-Path -LiteralPath $ConfigPath -PathType Leaf)) { throw [IO.FileNotFoundException]::new('config_missing', $ConfigPath) }
     $cfg = Read-ConfigFile $ConfigPath
     if ($cfg['Version'] -ne '1') { throw 'config_invalid' }
