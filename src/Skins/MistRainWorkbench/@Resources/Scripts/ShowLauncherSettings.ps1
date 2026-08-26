@@ -124,6 +124,71 @@ function Set-CategoryName($Config, [string]$Value) {
     Save-Config $Config
 }
 
+function Save-ShellShortcutIcon([string]$Source, [string]$Destination) {
+    if ([string]::IsNullOrWhiteSpace($Source) -or -not (Test-Path -LiteralPath $Source -PathType Leaf)) { return $false }
+    if (-not ('MistRainWorkbench.ShellIcon' -as [type])) {
+        Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+namespace MistRainWorkbench {
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    public struct SHFILEINFO {
+        public IntPtr hIcon;
+        public int iIcon;
+        public uint dwAttributes;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+        public string szDisplayName;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
+        public string szTypeName;
+    }
+    public static class ShellIcon {
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+        public static extern IntPtr SHGetFileInfo(string path, uint attributes, out SHFILEINFO info, uint size, uint flags);
+        [DllImport("user32.dll")]
+        public static extern bool DestroyIcon(IntPtr handle);
+    }
+}
+"@
+    }
+
+    $info = New-Object MistRainWorkbench.SHFILEINFO
+    $flags = [uint32]0x00000100
+    $result = [MistRainWorkbench.ShellIcon]::SHGetFileInfo($Source, 0, [ref]$info, [uint32][Runtime.InteropServices.Marshal]::SizeOf($info), $flags)
+    if ($result -eq [IntPtr]::Zero -or $info.hIcon -eq [IntPtr]::Zero) { return $false }
+
+    $wrapper = $null
+    $icon = $null
+    $bitmap = $null
+    $temporary = $null
+    $rollback = $null
+    try {
+        $wrapper = [Drawing.Icon]::FromHandle($info.hIcon)
+        $icon = $wrapper.Clone()
+        $directory = [IO.Path]::GetDirectoryName($Destination)
+        [IO.Directory]::CreateDirectory($directory) | Out-Null
+        $temporary = Join-Path $directory ('.launcher-icon.' + [Guid]::NewGuid().ToString('N') + '.png')
+        $bitmap = $icon.ToBitmap()
+        $bitmap.Save($temporary, [Drawing.Imaging.ImageFormat]::Png)
+        $bitmap.Dispose(); $bitmap = $null
+        $probe = [Drawing.Image]::FromFile($temporary)
+        try { if ($probe.Width -lt 1 -or $probe.Height -lt 1) { throw 'icon_validation_failed' } }
+        finally { $probe.Dispose() }
+        if (Test-Path -LiteralPath $Destination) {
+            $rollback = Join-Path $directory ('.launcher-icon.' + [Guid]::NewGuid().ToString('N') + '.rollback')
+            [IO.File]::Replace($temporary, $Destination, $rollback, $true)
+        }
+        else { [IO.File]::Move($temporary, $Destination) }
+        return $true
+    }
+    finally {
+        if ($bitmap) { $bitmap.Dispose() }
+        if ($icon) { $icon.Dispose() }
+        if ($wrapper) { $wrapper.Dispose() }
+        if ($temporary -and (Test-Path -LiteralPath $temporary)) { Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue }
+        if ($rollback -and (Test-Path -LiteralPath $rollback)) { Remove-Item -LiteralPath $rollback -Force -ErrorAction SilentlyContinue }
+        [void][MistRainWorkbench.ShellIcon]::DestroyIcon($info.hIcon)
+    }
+}
 function Set-LauncherSlot($Config, [string]$DisplayName, [string]$Command) {
     $name = $DisplayName.Trim()
     $cmd = $Command.Trim()
@@ -134,26 +199,13 @@ function Set-LauncherSlot($Config, [string]$DisplayName, [string]$Command) {
     $icon = ''
     if ($kind -eq 'file') {
         try {
-            $source = $cmd
-            if ([IO.Path]::GetExtension($cmd) -ieq '.lnk') {
-                $shell = New-Object -ComObject WScript.Shell
-                $target = $shell.CreateShortcut($cmd).TargetPath
-                if (Test-Path -LiteralPath $target -PathType Leaf) { $source = $target }
-            }
             $iconRoot = [IO.Path]::GetFullPath($IconDirectory)
             [IO.Directory]::CreateDirectory($iconRoot) | Out-Null
             $destination = Join-Path $iconRoot ("category$Category-slot$Slot.png")
-            $associated = [Drawing.Icon]::ExtractAssociatedIcon($source)
-            if ($associated) {
-                $bitmap = $associated.ToBitmap()
-                try { $bitmap.Save($destination, [Drawing.Imaging.ImageFormat]::Png) }
-                finally { $bitmap.Dispose(); $associated.Dispose() }
-                $icon = $destination
-            }
+            if (Save-ShellShortcutIcon $cmd $destination) { $icon = $destination }
         }
         catch { $icon = '' }
     }
-
     $key = "Slot$($Category)_$($Slot)"
     $Config["$($key)Name"] = Encode $name
     $Config["$($key)Command"] = Encode $cmd

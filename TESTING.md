@@ -4,9 +4,9 @@ Artifact: `dist/TanaDaily-MistRainWorkbench-1.0.4.rmskin`
 
 Verified: 2026-08-27 on Windows / Rainmeter
 
-Size: 118,846 bytes
+Size: 119,435 bytes
 
-SHA-256: `0DE9B5A19C4520B9F5DE48F9F1F8DBDF21B81AFE167E7DBBAAE9C16B2741F822`
+SHA-256: `8A11833F47D239C72C13B09710D8245359121991E4F9567C7AA7E8AA7420BA89`
 
 ## Safety and compatibility matrix
 
@@ -32,6 +32,7 @@ SHA-256: `0DE9B5A19C4520B9F5DE48F9F1F8DBDF21B81AFE167E7DBBAAE9C16B2741F822`
 | Quick Launch Unicode path | PASS | A Chinese directory and `.lnk` filename completed config Base64 roundtrip and launch through hidden Windows PowerShell 5.1; missing Unicode target returned the expected state |
 | Quick Launch panel UX | PASS | Windows PowerShell 5.1 constructed add, edit, category, and clear-armed panels; inline validation, Enter/Escape, no MessageBox, two-step clear, result actions, URL replacement, stale-icon cleanup, cancel/no-write, and native previews were verified |
 | Quick Launch routing matrix | PASS | All 4 categories x 5 slots saved and cleared only their routed target even when stale Daily/slot-1 command arguments were supplied |
+| Quick Launch shortcut icon | PASS | Two Chinese-named `.lnk` fixtures targeting the same EXE but using different Shell icons produced distinct, decodable per-slot PNGs; replacement was atomic and clear removed the PNG |
 | Desktop layer | PASS | Clock, Calendar, Todo, Focus, App Usage, and Quick Launch all set `ZPos -2` (`On Desktop`) |
 | Privacy scan | PASS | No author tasks, ActivityWatch history, personal timer state, result/request cache, email, or `C:\Users\JSrad` path in the package |
 | Network scan | PASS | Shipped scripts contain no unexpected remote endpoint; ActivityWatch default is localhost only |

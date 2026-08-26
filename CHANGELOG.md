@@ -5,6 +5,7 @@
 - Fixes Quick Launcher category and slot routing so System/Create/Games edits never fall back to Daily slot 1.
 - Uses a validated route request file instead of mutable RunCommand parameters, and rejects mismatched completion results.
 - Prevents overlapping settings dialogs and verifies all 20 slots for both save and clear operations.
+- Saves each configured Windows shortcut icon as a validated per-slot PNG, honoring custom `.lnk` icons and Unicode names/paths.
 
 ## 1.0.3 - 2026-08-27
 
