@@ -2,6 +2,10 @@
 
 A local-first, low-permission Windows Rainmeter desktop workbench using neutral white / smoke-gray frosted glass.
 
+## Demo
+
+![TanaDaily Rainmeter Dashboard animated demo](screenshots/tanadaily-dashboard-demo.gif)
+
 ## Features
 
 - Clock and monthly calendar

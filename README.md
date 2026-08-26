@@ -2,6 +2,10 @@
 
 一套 local-first、低權限的 Windows Rainmeter 桌面工作台。介面採 neutral white / smoke gray frosted glass，讓桌布保留為主要色彩來源。
 
+## 動態預覽
+
+![TanaDaily Rainmeter Dashboard 動態展示](screenshots/tanadaily-dashboard-demo.gif)
+
 ## 功能
 
 - Clock 與 Monthly Calendar
