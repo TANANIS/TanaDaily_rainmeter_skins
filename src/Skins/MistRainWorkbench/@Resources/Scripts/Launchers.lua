@@ -1,6 +1,8 @@
 local categoryCount, slotCount = 4, 5
 local active = 1
-local configPath, statePath, resultPath, launchResultPath, routePath = "", "", "", "", ""
+local configPath, statePath, resultPath, launchResultPath, routePath, launchRoutePath = "", "", "", "", "", ""
+local launchRunning = false
+local expectedLaunchCategory, expectedLaunchSlot = 0, 0
 local settingsRunning = false
 local expectedMode, expectedCategory, expectedSlot = "", 0, 0
 local values = {}
@@ -47,6 +49,14 @@ local function writeSettingsRoute(mode, category, slot)
     local file = io.open(routePath, 'wb')
     if not file then return false end
     file:write("Version=1\r\nMode=" .. mode .. "\r\nCategory=" .. category .. "\r\nSlot=" .. slot .. "\r\n")
+    file:close()
+    return true
+end
+
+local function writeLaunchRoute(category, slot)
+    local file = io.open(launchRoutePath, 'wb')
+    if not file then return false end
+    file:write("Version=1\r\nCategory=" .. category .. "\r\nSlot=" .. slot .. "\r\n")
     file:close()
     return true
 end
@@ -134,6 +144,7 @@ function Initialize()
     resultPath = SKIN:GetVariable('LauncherSettingsResultFile')
     launchResultPath = SKIN:GetVariable('LauncherLaunchResultFile')
     routePath = SKIN:GetVariable('LauncherSettingsRouteFile')
+    launchRoutePath = SKIN:GetVariable('LauncherLaunchRouteFile')
     active = math.max(1, math.min(categoryCount, tonumber(SKIN:GetVariable('ActiveLauncherCategory', '1')) or 1))
     setStatus('', '#TextFaint#')
     refresh()
@@ -175,22 +186,40 @@ function ConfigureSlot(category, slot) settings('slot', category, slot) end
 function ConfigureCategory(category) settings('category', category, 0) end
 
 function Launch(category, slot)
-    category = math.max(1, math.min(categoryCount, tonumber(category) or active))
-    slot = math.max(1, math.min(slotCount, tonumber(slot) or 1))
-    if not writeLaunchPending() then
+    if launchRunning then
+        setStatus(SKIN:GetVariable('LauncherStatusLaunching'), '#TextFaint#')
+        SKIN:Bang('!Redraw')
+        return
+    end
+    category = math.floor(tonumber(category) or 0)
+    slot = math.floor(tonumber(slot) or 0)
+    if category < 1 or category > categoryCount or slot < 1 or slot > slotCount then
         setStatus(SKIN:GetVariable('LauncherStatusLaunchError'), '#ErrorColor#')
         SKIN:Bang('!Redraw')
         return
     end
+    if not writeLaunchRoute(category, slot) or not writeLaunchPending() then
+        setStatus(SKIN:GetVariable('LauncherStatusLaunchError'), '#ErrorColor#')
+        SKIN:Bang('!Redraw')
+        return
+    end
+    launchRunning = true
+    expectedLaunchCategory, expectedLaunchSlot = category, slot
     setStatus(SKIN:GetVariable('LauncherStatusLaunching'), '#TextFaint#')
     SKIN:Bang('!Redraw')
-    local parameter = '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "#@#Scripts\LaunchShortcut.ps1" -Category ' .. category .. ' -Slot ' .. slot .. ' -ConfigPath "#LauncherConfigFile#" -ResultPath "#LauncherLaunchResultFile#"'
-    SKIN:Bang('!SetOption', 'MeasureLauncherRun', 'Parameter', parameter)
     SKIN:Bang('!CommandMeasure', 'MeasureLauncherRun', 'Run')
 end
 
 function LaunchFinished()
     local result = parseKeys(readBinary(launchResultPath) or '')
+    launchRunning = false
+    local routedCategory = tonumber(result.Category or '0') or 0
+    local routedSlot = tonumber(result.Slot or '0') or 0
+    if routedCategory ~= expectedLaunchCategory or routedSlot ~= expectedLaunchSlot then
+        setStatus(SKIN:GetVariable('LauncherStatusLaunchError'), '#ErrorColor#')
+        SKIN:Bang('!Redraw')
+        return
+    end
     local status = result.Status or 'error'
     if status == 'ok' then
         setStatus(SKIN:GetVariable('LauncherStatusLaunched'), '#TextFaint#')

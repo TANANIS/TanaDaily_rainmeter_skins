@@ -6,6 +6,8 @@
 - Uses a validated route request file instead of mutable RunCommand parameters, and rejects mismatched completion results.
 - Prevents overlapping settings dialogs and verifies all 20 slots for both save and clear operations.
 - Saves each configured Windows shortcut icon as a validated per-slot PNG, honoring custom `.lnk` icons and Unicode names/paths.
+- Launches Unicode and Edge App / PWA `.lnk` files through Windows ShellExecute, preserving shortcut arguments such as `--app-id` and profile selection.
+- Routes launches through a validated request file and rejects stale category/slot results instead of silently opening another shortcut.
 
 ## 1.0.3 - 2026-08-27
 
